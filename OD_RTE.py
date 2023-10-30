@@ -2860,7 +2860,7 @@ class RelModel_OD_RTE(nn.Module):
         self.relation_matrix = nn.Linear(3*self.bert_dim, self.rel_size * self.tag_size)
         self.projection_matrix = nn.Linear(self.bert_dim * 2, 3*self.bert_dim)
         self.global_region_matrix = nn.Linear(3*self.bert_dim,1)
-        self.table_pos_bias = nn.Parameter(torch.rand(256, 768))
+        #self.table_pos_bias = nn.Parameter(torch.rand(256, 768))
         #self.pos_emb_w = RelativeSinusoidalPositionalEmbedding(3*self.bert_dim,0,2*max_seq_len+10)
         #self.pos_embeding = nn.Embedding.from_pretrained(self.pos_emb_w.weights,freeze=True)
 
@@ -2874,8 +2874,8 @@ class RelModel_OD_RTE(nn.Module):
         #shaking hand
         batch_size, seq_len, bert_dim = encoded_text.size()
         head_representation = encoded_text.unsqueeze(2).expand(batch_size, seq_len, seq_len, bert_dim).reshape(batch_size, seq_len*seq_len, bert_dim)
-        #tail_representation = encoded_text.repeat(1, seq_len, 1)
-        tail_representation = self.table_pos_bias[0:seq_len,:].unsqueeze(0).repeat(batch_size,1,1).repeat(1, seq_len, 1)
+        tail_representation = encoded_text.repeat(1, seq_len, 1)
+        #tail_representation = self.table_pos_bias[0:seq_len,:].unsqueeze(0).repeat(batch_size,1,1).repeat(1, seq_len, 1)
         entity_pairs = torch.cat([head_representation, tail_representation], dim=-1)
 
         entity_pairs = self.projection_matrix(entity_pairs)
